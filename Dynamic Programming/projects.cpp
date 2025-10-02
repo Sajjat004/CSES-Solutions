@@ -14,6 +14,7 @@ struct Project {
 void run() {
   int n; cin >> n;
   vector<Project> projects;
+  projects.emplace_back(INT_MIN, INT_MIN, 0);
   for (int i = 0; i < n; i++) {
     int s, e, p; cin >> s >> e >> p;
     projects.emplace_back(s, e, p);
@@ -21,25 +22,15 @@ void run() {
 
   sort(projects.begin(), projects.end());
 
-  vector<ll> dp(n + 1);
-  dp[0] = projects[0].p;
-  for (int i = 1; i < n; ++i) {
+  vector<ll> dp(n + 2);
+  dp[0] = 0;
+  for (int i = 1; i <= n; ++i) {
     dp[i] = dp[i - 1];
-    int idx = -1;
-    int lo = 0, hi = i - 1;
-    while (lo <= hi) {
-      int mid = (lo + hi) >> 1;
-      if (projects[mid].e < projects[i].s) {
-        idx = mid;
-        lo = mid + 1;
-      } else {
-        hi = mid - 1;
-      }
-    }
-    dp[i] = max(dp[i], (ll) projects[i].p + (idx == -1 ? 0 : dp[idx]));
+    int idx = upper_bound(projects.begin(), projects.end(), Project(INT_MIN, projects[i].s, INT_MIN)) - projects.begin() - 1;
+    dp[i] = max(dp[i], dp[idx] + projects[i].p);
   }
 
-  cout << dp[n - 1] << "\n";
+  cout << dp[n] << "\n";
 }
 
 int32_t main() {
